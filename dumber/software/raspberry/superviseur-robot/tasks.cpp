@@ -26,6 +26,7 @@
 #define PRIORITY_TRECEIVEFROMMON 25
 #define PRIORITY_TSTARTROBOT 20
 #define PRIORITY_TCAMERA 21
+#define PRIORITY_TBATTERY 10
 
 /*
  * Some remarks:
@@ -123,6 +124,10 @@ void Tasks::Init() {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+    if (err = rt_task_create(&th_checkBattery, "th_battery", 0, PRIORITY_TBATTERY, 0)) {
+        cerr << "Error task create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
     cout << "Tasks created successfully" << endl << flush;
 
     /**************************************************************************************/
@@ -167,7 +172,10 @@ void Tasks::Run() {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
-
+    if (err = rt_task_start(&th_checkBattery, (void(*)(void*)) & Tasks::CheckBattery, this)) {
+        cerr << "Error task start: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
     cout << "Tasks launched" << endl << flush;
 }
 
@@ -415,3 +423,36 @@ Message *Tasks::ReadInQueue(RT_QUEUE *queue) {
     return msg;
 }
 
+/**
+ * 
+ */
+void Tasks::CheckBattery(void* arg) {
+    Message *battery_level;
+    int rs;
+    
+     cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
+    
+    rt_sem_p(&sem_barrier, TM_INFINITE);
+    rt_task_set_periodic(NULL, TM_NOW, 500000000); //500000000 tics d'horloge = 500ms
+    
+    while(1){
+        cout << "Bonjour" << endl << flush;
+        rt_task_wait_period(NULL);
+        rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
+        rs = robotStarted;
+        rt_mutex_release(&mutex_robotStarted);
+        if (rs == 1) {
+            cout << "ta gueule" << endl << flush;
+            rt_mutex_acquire(&mutex_robot, TM_INFINITE);
+            battery_level = robot.GetBattery();
+            rt_mutex_release(&mutex_robot);
+            
+            cout << battery_level << endl << flush;
+            WriteInQueue(&q_messageToMon, battery_level);
+        }
+        else if (rs == 0){
+            cout << "fait chier" << endl << flush;
+        }
+    }
+    
+}
