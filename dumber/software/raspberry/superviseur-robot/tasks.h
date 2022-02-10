@@ -65,6 +65,7 @@ private:
     ComMonitor monitor;
     ComRobot robot;
     int robotStarted = 0;
+    int startedWD = 0;
     int move = MESSAGE_ROBOT_STOP;
     
     /**********************************************************************/
@@ -75,8 +76,10 @@ private:
     RT_TASK th_receiveFromMon;
     RT_TASK th_openComRobot;
     RT_TASK th_startRobot;
+    RT_TASK th_startRobotWD;
     RT_TASK th_move;
     RT_TASK th_checkBattery;
+    RT_TASK th_Watchdog;
     
     /**********************************************************************/
     /* Mutex                                                              */
@@ -93,6 +96,7 @@ private:
     RT_SEM sem_openComRobot;
     RT_SEM sem_serverOk;
     RT_SEM sem_startRobot;
+    RT_SEM sem_startRobotWD;
 
     /**********************************************************************/
     /* Message queues                                                     */
@@ -151,8 +155,18 @@ private:
     Message *ReadInQueue(RT_QUEUE *queue);
     
     void CheckBattery(void* arg);
+    
+    /**
+    * @brief Thread starting the communication with the robot with Watchdog.
+    */
+    void StartRobotTaskWD(void *arg);
+    
+    /**
+    * @brief Watchdog to prevent the robot to stop
+    */
+
+    void WatchDog(void* arg);
 
 };
 
 #endif // __TASKS_H__ 
-
