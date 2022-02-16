@@ -66,6 +66,8 @@ private:
     ComRobot robot;
     int robotStarted = 0;
     int startedWD = 0;
+    int wd = 0;
+    int countErrorCom = 0;
     int move = MESSAGE_ROBOT_STOP;
     
     /**********************************************************************/
@@ -80,6 +82,7 @@ private:
     RT_TASK th_move;
     RT_TASK th_checkBattery;
     RT_TASK th_Watchdog;
+    RT_TASK th_checkComRobot;
     
     /**********************************************************************/
     /* Mutex                                                              */
@@ -88,6 +91,8 @@ private:
     RT_MUTEX mutex_robot;
     RT_MUTEX mutex_robotStarted;
     RT_MUTEX mutex_move;
+    RT_MUTEX mutex_WD;
+    RT_MUTEX mutex_countErrorCom;
 
     /**********************************************************************/
     /* Semaphores                                                         */
@@ -154,18 +159,21 @@ private:
      */
     Message *ReadInQueue(RT_QUEUE *queue);
     
-    void CheckBattery(void* arg);
-    
     /**
-    * @brief Thread starting the communication with the robot with Watchdog.
+    * @brief Check level of battery and send it to monitor
     */
-    void StartRobotTaskWD(void *arg);
+    void CheckBattery(void* arg);
     
     /**
     * @brief Watchdog to prevent the robot to stop
     */
-
     void WatchDog(void* arg);
+    
+    /*
+    * @param message returned
+    * @brief Check if communication with robot is still open
+    */
+    void CheckComRobot(Message* msg);
 
 };
 
