@@ -66,6 +66,7 @@ private:
     ComRobot robot;
     int robotStarted = 0;
     int startedWD = 0;
+    int wd = 0;
     int countErrorCom = 0;
     int move = MESSAGE_ROBOT_STOP;
     
@@ -162,11 +163,6 @@ private:
     * @brief Check level of battery and send it to monitor
     */
     void CheckBattery(void* arg);
-    
-    /**
-    * @brief Thread starting the communication with the robot with Watchdog.
-    */
-    void StartRobotTaskWD(void *arg);
     
     /**
     * @brief Watchdog to prevent the robot to stop
