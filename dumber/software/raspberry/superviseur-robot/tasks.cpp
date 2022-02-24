@@ -291,7 +291,19 @@ void Tasks::ReceiveFromMonTask(void *arg) {
             rt_mutex_acquire(&mutex_move, TM_INFINITE);
             move = MESSAGE_ROBOT_STOP;
             rt_mutex_release(&mutex_move);
-            Stop();
+            rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
+            int rs = robotStarted;
+            rt_mutex_release(&mutex_robotStarted);
+            if (rs == 1){
+                rt_mutex_acquire(&mutex_robot, TM_INFINITE);
+                robot.Write(robot.Reset());
+                rt_mutex_release(&mutex_robot);
+            }
+            robot.Close();
+            monitor.Close();
+            rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
+            robotStarted = 0;
+            rt_mutex_release(&mutex_robotStarted);
             exit(-1);
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_COM_OPEN)) {
             rt_sem_v(&sem_openComRobot);
