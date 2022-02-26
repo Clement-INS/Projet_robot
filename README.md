@@ -20,8 +20,8 @@ Exécuter le code depuis NetBeans par exemple, après avoir allumer le robot et 
 Les commandes pour donner des ordres au robot seront données dans le terminal qui servira de moniteur.
 ```bash
 -U
-... à détailler
-```
+... Pour lancer le moniteur, lancer software/monitor/monitor-python/monitor-python.py
+``` Pour lancer le superviseur, se connecter au rasberry en ssh puis dans le dossier du superviseur lancer sudo ./supervisuer-robot
 
 ## Maintainers
 - [Antoine Alaverdov](https://github.com/AntoineAlaverdov)
